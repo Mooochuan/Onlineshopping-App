@@ -1,2 +1,2 @@
 # Onlineshopping-App
-A serverless online shoppping app with AWS Lamda and stripe
+A serverless online shoppping app with AWS Lamda and React
