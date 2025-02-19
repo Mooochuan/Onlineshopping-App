@@ -117,7 +117,7 @@ class PayButton extends Component {
                   className="btn btn-success btn-block paybutton-success-message"
                   onClick={() => this.setState({ alreadyOrdered: false })}
               >
-                Vielen Dank für Deine Bestellung!
+                Thank you for your order!
               </button>
           ) : (
               <div>
@@ -130,21 +130,21 @@ class PayButton extends Component {
                         }}
                         className="btn btn-primary btn-block paybutton-add-to-basket"
                     >
-                      In den Warenkorb
+                      Add to cart
                     </button>
                 )}
 
                 {/* If we've added to basket, show shipping info */}
                 {shippingInfo || !addedToBasket ? null : (
                     <form onSubmit={(ev) => this.openStripe(ev)}>
-                      <p>Deine Lieferadresse</p>
+                      <p>Your shipping address</p>
                       <div className="form-row">
                         <div className="form-group col-md-6">
                           <input
                               type="text"
                               className="form-control"
                               id="inputFirstName"
-                              placeholder="Vorname"
+                              placeholder="Firstname"
                               name="firstName"
                               onChange={this.handleInputChange}
                           />
@@ -154,7 +154,7 @@ class PayButton extends Component {
                               type="text"
                               className="form-control"
                               id="inputLastName"
-                              placeholder="Nachname"
+                              placeholder="Lastname"
                               name="lastName"
                               onChange={this.handleInputChange}
                           />
@@ -166,7 +166,7 @@ class PayButton extends Component {
                               type="text"
                               className="form-control"
                               id="inputStreet"
-                              placeholder="Strasse"
+                              placeholder="Street"
                               name="street"
                               onChange={this.handleInputChange}
                           />
@@ -176,7 +176,7 @@ class PayButton extends Component {
                               type="text"
                               className="form-control"
                               id="inputStreetNumber"
-                              placeholder="Nr."
+                              placeholder="Number"
                               name="streetNumber"
                               onChange={this.handleInputChange}
                           />
@@ -188,7 +188,7 @@ class PayButton extends Component {
                               type="text"
                               className="form-control"
                               id="inputZip"
-                              placeholder="PLZ"
+                              placeholder="Zip"
                               name="zipcode"
                               onChange={this.handleInputChange}
                           />
@@ -198,7 +198,7 @@ class PayButton extends Component {
                               type="text"
                               className="form-control"
                               id="inputCity"
-                              placeholder="Stadt"
+                              placeholder="City"
                               name="city"
                               onChange={this.handleInputChange}
                           />
@@ -209,7 +209,7 @@ class PayButton extends Component {
                           className="btn btn-primary btn-block paybutton-pay"
                           type="submit"
                       >
-                        Bezahlen
+                        Pay
                       </button>
                     </form>
                 )}
