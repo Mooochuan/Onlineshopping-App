@@ -1,55 +1,60 @@
+// functions/createCharge.js
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
-module.exports.handler = (event, context, callback) => {
-  const requestBody = JSON.parse(event.body);
+module.exports.handler = async (event, context) => {
+  try {
+    const requestBody = JSON.parse(event.body);
 
-  // Payment information (from Stripe Checkout)
-  const token = requestBody.token.id;
-  const email = requestBody.token.email;
+    // Token returned by old Stripe Checkout popup
+    const token = requestBody.token.id;
+    const email = requestBody.token.email;
 
-  // Order information
-  const currency = requestBody.order.currency;
-  const items = requestBody.order.items;
-  const shipping = requestBody.order.shipping;
+    // Order details from the frontend
+    const { order } = requestBody;
+    // For example: order = { amount: 999, currency: 'eur', shipping: { ... } }
 
-  // Create order
-  return stripe.orders.create({
-    currency: currency,
-    items: items,
-    shipping: shipping,
-    email: email
-  }).then((order) => {
+    // In production, you'd typically re-check the price on your server
+    // to avoid tampering. For now, we trust `order.amount`.
+    const amount = order.amount;
+    const currency = order.currency || 'eur';
 
-    // Pay order with received token (from Stripe Checkout)
-    return stripe.orders.pay(order.id, {
-      source: token // obtained with Stripe.js
-    }).then((order) => {
+    // 1. Create an unconfirmed PaymentIntent
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount,
+      currency,
+      receipt_email: email,
+      shipping: order.shipping, // optional
+      description: 'Serverless Shop Payment',
+      // Possibly store line-item info in metadata, e.g.:
+      // metadata: { items: JSON.stringify(order.items || []) },
+    });
 
-      const response = {
-        statusCode: 200,
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-        },
-        body: JSON.stringify({
-          message: `Order processed succesfully!`,
-          order,
-        }),
-      };
-      callback(null, response);
+    // 2. Confirm it using the token
+    const confirmedIntent = await stripe.paymentIntents.confirm(
+        paymentIntent.id,
+        {
+          payment_method_data: {
+            type: 'card',
+            card: { token },
+          },
+        }
+    );
 
-    })
-  })
-  .catch((err) => { // Error response
-    console.log(err);
-    const response = {
-      statusCode: 500,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-      },
+    // Return success
+    return {
+      statusCode: 200,
+      headers: { 'Access-Control-Allow-Origin': '*' },
       body: JSON.stringify({
-        error: err.message,
+        message: 'Payment Intent created and confirmed successfully!',
+        paymentIntent: confirmedIntent,
       }),
     };
-    callback(null, response);
-  })
+  } catch (err) {
+    console.error(err);
+    return {
+      statusCode: 500,
+      headers: { 'Access-Control-Allow-Origin': '*' },
+      body: JSON.stringify({ error: err.message }),
+    };
+  }
 };

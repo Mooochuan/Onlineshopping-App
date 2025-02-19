@@ -9,10 +9,10 @@ custom:
 # The `provider` block defines where your service will be deployed
 provider:
   name: aws
-  runtime: nodejs6.10
+  runtime: nodejs18.x
   stage: dev
-  profile: personal
-  region: eu-west-1
+  profile: default
+  region: us-east-1
   environment:
     STRIPE_SECRET_KEY: ${self:custom.secrets.stripeSecretKey} # Stripe secret API key
 

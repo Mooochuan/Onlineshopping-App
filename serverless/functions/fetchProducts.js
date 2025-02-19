@@ -1,29 +1,31 @@
+// functions/fetchProducts.js
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
-module.exports.handler = (event, context, callback) => {
-  return stripe.products.list(
-      {limit: 10}).then((products) => {
-    const response = {
+module.exports.handler = async (event, context) => {
+  try {
+    // Expand each product’s default_price
+    const products = await stripe.products.list({
+      limit: 10,
+      expand: ['data.default_price'],
+    });
+
+    return {
       statusCode: 200,
       headers: {
         'Access-Control-Allow-Origin': '*',
       },
       body: JSON.stringify({
-        data: products.data
+        data: products.data, // array of product objects
       }),
     };
-    callback(null, response);
-  }).catch((err) => { // Error response
-    console.log(err);
-    const response = {
+  } catch (err) {
+    console.error(err);
+    return {
       statusCode: 500,
       headers: {
         'Access-Control-Allow-Origin': '*',
       },
-      body: JSON.stringify({
-        error: err.message,
-      }),
+      body: JSON.stringify({ error: err.message }),
     };
-    callback(null, response);
-  });
+  }
 };
